@@ -3,9 +3,9 @@
 @theme {
   --color-background: #050505;
   --color-foreground: #ffffff;
-  --color-primary: #c026d3;
-  --color-secondary: #2563eb;
-  --color-accent: #22d3ee;
+  --color-primary: #ff5722;
+  --color-secondary: #ff8c42;
+  --color-accent: #ffa500;
   --color-glass: rgba(255, 255, 255, 0.03);
   --color-glass-border: rgba(255, 255, 255, 0.1);
 }
@@ -43,9 +43,9 @@ body {
   height: 100%;
   z-index: -1;
   background:
-    radial-gradient(circle at 10% 10%, rgba(192, 38, 211, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 90% 90%, rgba(37, 99, 235, 0.1) 0%, transparent 40%),
-    radial-gradient(circle at 50% 50%, rgba(34, 211, 238, 0.05) 0%, transparent 60%);
+    radial-gradient(circle at 10% 10%, rgba(255, 87, 34, 0.15) 0%, transparent 40%),
+    radial-gradient(circle at 90% 90%, rgba(255, 140, 66, 0.12) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(255, 165, 0, 0.08) 0%, transparent 60%);
 }
 
 /* Custom scrollbar */
