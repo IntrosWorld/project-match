@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import GitHub from "next-auth/providers/github"
-import Nodemailer from "next-auth/providers/nodemailer"
 import { PrismaAdapter } from "@auth/prisma-adapter"
 import prisma from "@/lib/prisma"
 
@@ -10,11 +9,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         GitHub({
             clientId: process.env.GITHUB_ID!,
             clientSecret: process.env.GITHUB_SECRET!,
+            authorization: { params: { scope: 'read:user user:email' } },
         }),
     ],
     session: { strategy: "jwt" },
+    trustHost: true,
     pages: {
         signIn: "/auth/signin",
+        error: "/auth/error",
     },
     callbacks: {
         session({ session, token }) {

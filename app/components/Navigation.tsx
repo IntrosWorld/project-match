@@ -17,8 +17,8 @@ export default function Navigation({ activeTab, setActiveTab }: NavigationProps)
     ];
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50">
-            <nav className="glass-morphism px-4 py-3 rounded-full flex items-center gap-6 shadow-2xl">
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
+            <nav className="glass-morphism px-6 py-4 rounded-3xl flex items-center gap-8 shadow-2xl border border-white/10 backdrop-blur-xl">
                 {tabs.map((tab) => {
                     const Icon = tab.icon;
                     const isActive = activeTab === tab.id;
@@ -27,24 +27,30 @@ export default function Navigation({ activeTab, setActiveTab }: NavigationProps)
                         <button
                             key={tab.id}
                             onClick={() => setActiveTab(tab.id)}
-                            className="relative p-2 transition-colors duration-300"
+                            className="relative p-3 transition-all duration-300 group"
                         >
                             <Icon
-                                className={`w-6 h-6 transition-colors duration-300 ${isActive ? "text-primary" : "text-gray-400 hover:text-white"
-                                    }`}
+                                className={`w-6 h-6 transition-all duration-300 ${
+                                    isActive
+                                        ? "text-white scale-110"
+                                        : "text-gray-400 hover:text-white hover:scale-105"
+                                }`}
                             />
                             {isActive && (
                                 <motion.div
                                     layoutId="activeTab"
-                                    className="absolute inset-0 bg-primary/10 rounded-full -z-10"
+                                    className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-2xl -z-10 border border-primary/30"
                                     initial={false}
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
+                            {!isActive && (
+                                <div className="absolute inset-0 bg-white/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity -z-10" />
+                            )}
                             {tab.id === "messages" && (
-                                <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
                                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-accent"></span>
+                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-accent border-2 border-black"></span>
                                 </span>
                             )}
                         </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Rocket, Plus, Image as ImageIcon, Tag, Type } from "lucide-react";
+import { X, Plus, Image as ImageIcon, Tag, Type } from "lucide-react";
 import { useState, useTransition } from "react";
 import { createProject } from "@/app/actions/project";
 import ImageUpload from "./ImageUpload";
@@ -40,81 +40,102 @@ export default function CreateProjectModal({ isOpen, onClose }: { isOpen: boolea
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                         className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-[101] p-6 focus:outline-none"
                     >
-                        <div className="glass-morphism rounded-[2.5rem] p-8 shadow-2xl border-white/5 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 p-4">
+                        <div className="glass-morphism rounded-[3rem] p-10 shadow-2xl border border-white/10 backdrop-blur-xl relative overflow-hidden">
+                            <div className="absolute top-0 right-0 p-6">
                                 <button
                                     onClick={onClose}
-                                    className="p-2 hover:bg-white/5 rounded-full transition-colors"
+                                    className="p-3 hover:bg-white/10 rounded-full transition-colors border border-white/5"
                                 >
-                                    <X className="w-5 h-5 text-gray-400" />
+                                    <X className="w-6 h-6 text-gray-400" />
                                 </button>
                             </div>
 
-                            <div className="flex items-center gap-4 mb-8">
-                                <div className="p-3 bg-primary/20 rounded-2xl">
-                                    <Plus className="w-6 h-6 text-primary" />
+                            <div className="flex items-center gap-6 mb-10">
+                                <div className="p-4 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-3xl border border-white/10">
+                                    <Plus className="w-8 h-8 text-primary" />
                                 </div>
                                 <div>
-                                    <h2 className="text-2xl font-black">Launch New Project</h2>
-                                    <p className="text-sm text-gray-400">Share your vision with the world</p>
+                                    <h2 className="text-3xl font-black tracking-tighter">Launch New Project</h2>
+                                    <p className="text-gray-400 text-lg font-medium">Share your vision with the world</p>
                                 </div>
                             </div>
 
-                            <form action={handleSubmit} className="space-y-6">
-                                <div className="space-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                            <Type className="w-3 h-3" /> Title
+                            <form action={handleSubmit} className="space-y-8">
+                                <div className="space-y-6">
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-3">
+                                            <div className="p-2 bg-primary/20 rounded-xl">
+                                                <Type className="w-4 h-4 text-primary" />
+                                            </div>
+                                            Project Title
                                         </label>
                                         <input
                                             name="title"
-                                            className="w-full px-5 py-3 glass-morphism rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-gray-700"
+                                            className="w-full px-6 py-4 glass-morphism rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-gray-600 border border-white/5 text-lg"
                                             placeholder="Enter a catchy title..."
                                         />
-                                        {errors.title && <p className="text-red-400 text-xs font-medium">{errors.title[0]}</p>}
+                                        {errors.title && <p className="text-red-400 text-sm font-medium">{errors.title[0]}</p>}
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                            <Tag className="w-3 h-3" /> Tags (comma separated)
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-3">
+                                            <div className="p-2 bg-secondary/20 rounded-xl">
+                                                <Tag className="w-4 h-4 text-secondary" />
+                                            </div>
+                                            Technologies & Tags
                                         </label>
                                         <input
                                             name="tags"
-                                            className="w-full px-5 py-3 glass-morphism rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-gray-700"
+                                            className="w-full px-6 py-4 glass-morphism rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-gray-600 border border-white/5 text-lg"
                                             placeholder="React, AI, Sustainability..."
                                         />
-                                        {errors.tags && <p className="text-red-400 text-xs font-medium">{errors.tags[0]}</p>}
+                                        {errors.tags && <p className="text-red-400 text-sm font-medium">{errors.tags[0]}</p>}
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                            <ImageIcon className="w-3 h-3" /> Cover Image
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-3">
+                                            <div className="p-2 bg-accent/20 rounded-xl">
+                                                <ImageIcon className="w-4 h-4 text-accent" />
+                                            </div>
+                                            Project Cover Image
                                         </label>
                                         <ImageUpload onUploadComplete={(url) => setUploadedImageUrl(url)} />
                                         <input type="hidden" name="imageUrl" value={uploadedImageUrl || ""} />
                                     </div>
 
-                                    <div className="space-y-2">
-                                        <label className="text-xs font-bold text-gray-500 uppercase tracking-widest flex items-center gap-2">
-                                            Description
+                                    <div className="space-y-3">
+                                        <label className="text-sm font-bold text-gray-300 uppercase tracking-widest flex items-center gap-3">
+                                            <div className="p-2 bg-primary/20 rounded-xl">
+                                                <Type className="w-4 h-4 text-primary" />
+                                            </div>
+                                            Project Description
                                         </label>
                                         <textarea
                                             name="description"
-                                            className="w-full px-5 py-3 glass-morphism rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all min-h-[120px] placeholder:text-gray-700"
-                                            placeholder="What are you building? Who are you looking for?"
+                                            rows={4}
+                                            className="w-full px-6 py-4 glass-morphism rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all placeholder:text-gray-600 border border-white/5 text-lg resize-none"
+                                            placeholder="Describe your project vision..."
                                         />
-                                        {errors.description && <p className="text-red-400 text-xs font-medium">{errors.description[0]}</p>}
+                                        {errors.description && <p className="text-red-400 text-sm font-medium">{errors.description[0]}</p>}
                                     </div>
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    disabled={isPending}
-                                    className="w-full py-4 bg-gradient-to-r from-primary to-secondary rounded-2xl font-black text-lg flex items-center justify-center gap-3 hover:shadow-[0_0_30px_-10px_rgba(192,38,211,0.5)] active:scale-95 transition-all disabled:opacity-50"
-                                >
-                                    <Rocket className={`w-6 h-6 ${isPending ? "animate-pulse" : ""}`} />
-                                    {isPending ? "Launching..." : "Launch Project"}
-                                </button>
+                                <div className="flex gap-4 pt-6">
+                                    <button
+                                        type="button"
+                                        onClick={onClose}
+                                        className="flex-1 py-4 glass-morphism rounded-2xl font-bold hover:bg-white/10 transition-colors border border-white/5"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isPending}
+                                        className="flex-1 py-4 bg-gradient-to-r from-primary to-secondary rounded-2xl font-black text-lg hover:shadow-[0_0_40px_-10px_rgba(255,87,34,0.5)] transition-all active:scale-95 border border-white/10"
+                                    >
+                                        {isPending ? "Launching..." : "🚀 Launch Project"}
+                                    </button>
+                                </div>
                             </form>
                         </div>
                     </motion.div>

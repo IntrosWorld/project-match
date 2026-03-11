@@ -10,7 +10,8 @@ export default async function Home() {
     redirect("/landing");
   }
 
-  const userId = session?.user?.id || "test-user-id";
+  const userId = session?.user?.id;
+
 
   // Fetch projects the user hasn't swiped on yet
   const swipedProjectIds = await prisma.swipe
@@ -33,14 +34,17 @@ export default async function Home() {
 
   const teammates = await prisma.user.findMany({
     where: {
-      id: { notIn: [...swipedUserIds, userId] },
+      id: { notIn: [...swipedUserIds, userId!] },
     },
     take: 10,
   });
-
   const userProfile = await prisma.user.findUnique({
     where: { id: userId },
   });
+
+  if (!userProfile) {
+    redirect("/landing");
+  }
 
   const myProjects = await prisma.project.findMany({
     where: { ownerId: userId },
@@ -75,7 +79,7 @@ export default async function Home() {
     <MainApp
       projects={projects}
       teammates={teammates}
-      userProfile={userProfile || { id: userId, name: "", bio: "", skills: "", major: "", university: "", year: "", image: null, email: null }}
+      userProfile={userProfile}
       myProjects={myProjects}
       matches={matches}
     />
