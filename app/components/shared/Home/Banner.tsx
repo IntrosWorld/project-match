@@ -215,10 +215,17 @@ const Banner = () => {
     ctx.fillStyle = theme.background;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    const erase = (e: MouseEvent) => {
+    const erase = (e: MouseEvent | TouchEvent) => {
       const rect = canvas.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
+      let x: number, y: number;
+
+      if ('touches' in e) {
+        x = e.touches[0].clientX - rect.left;
+        y = e.touches[0].clientY - rect.top;
+      } else {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+      }
       
       // Only erase if within canvas bounds
       if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
@@ -230,10 +237,14 @@ const Banner = () => {
     };
 
     // Attach to window so it works even when hovering over text with higher z-index
-    window.addEventListener('mousemove', erase);
+    window.addEventListener('mousemove', erase as EventListener);
+    window.addEventListener('touchstart', erase as EventListener, { passive: false });
+    window.addEventListener('touchmove', erase as EventListener, { passive: false });
 
     return () => {
-      window.removeEventListener('mousemove', erase);
+      window.removeEventListener('mousemove', erase as EventListener);
+      window.removeEventListener('touchstart', erase as EventListener);
+      window.removeEventListener('touchmove', erase as EventListener);
     };
   }, [windowSize.width, windowSize.height, theme]);
 

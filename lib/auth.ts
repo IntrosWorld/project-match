@@ -12,8 +12,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }),
     ],
     session: { strategy: "jwt" },
-    basePath: "/api/auth",
-    trustHost: true,
     pages: {
         signIn: "/auth/signin",
     },
