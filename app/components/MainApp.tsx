@@ -3,25 +3,28 @@
 import { useState } from "react";
 import Navigation from "./Navigation";
 import Deck from "./Deck";
-import ProjectCard from "./feed/ProjectCard";
+import DiscoveryProjectCard from "./feed/DiscoveryProjectCard";
 import UserCard from "./feed/UserCard";
 import ProfileView from "./profile/ProfileView";
 import { swipeProject, swipeUser } from "../actions/swipe";
-import { Coffee, Plus, Rocket, Sparkles, MessageSquare } from "lucide-react";
+import { Coffee, Plus, Rocket, MessageSquare } from "lucide-react";
 import { seedData } from "../actions/profile";
 import CreateProjectModal from "./CreateProjectModal";
 import MatchModal from "./MatchModal";
 
-interface Project {
+export interface Project {
     id: string;
     title: string;
     description: string;
     imageUrl?: string | null;
+    videoUrl?: string;
+    category?: string;
+    year?: string;
     tags: string;
     owner: { name: string | null };
 }
 
-interface UserProfile {
+export interface UserProfile {
     id: string;
     name: string | null;
     image: string | null;
@@ -38,15 +41,17 @@ export default function MainApp({
     teammates,
     userProfile,
     matches,
-    myProjects
+    myProjects,
+    initialTab = "projects",
 }: {
     projects: Project[],
     teammates: UserProfile[],
     userProfile: UserProfile,
     matches: UserProfile[],
-    myProjects: Project[]
+    myProjects: Project[],
+    initialTab?: string,
 }) {
-    const [activeTab, setActiveTab] = useState("projects");
+    const [activeTab, setActiveTab] = useState(initialTab);
     const [isSeeding, setIsSeeding] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [matchData, setMatchData] = useState<UserProfile | null>(null);
@@ -78,34 +83,32 @@ export default function MainApp({
     return (
         <div className="min-h-screen relative bg-black text-white">
             {/* Enhanced background with cinematic glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-orange-600/10 via-red-600/8 to-pink-600/5" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(234,40,30,0.1),transparent_70%)]" />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
 
-            <main className="container mx-auto px-6 py-8 pb-32 max-w-4xl relative z-10">
+            <main className="container mx-auto px-6 py-8 pb-32 max-w-5xl relative z-10">
                 {activeTab === "projects" && (
                     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <header className="flex items-center justify-between">
-                            <div className="space-y-2">
-                                <h1 className="text-5xl font-black tracking-tighter flex items-center gap-4">
-                                    <div className="p-3 bg-gradient-to-tr from-primary to-secondary rounded-2xl shadow-lg">
-                                        <Rocket className="text-white" />
-                                    </div>
-                                    <span>Discover Projects</span>
-                                </h1>
-                                <p className="text-gray-400 text-lg font-medium">Swipe right to join, left to pass</p>
+                        <header className="relative text-center space-y-4 mb-12">
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase mx-auto flex items-center justify-center gap-4">
+                                <Rocket className="w-8 h-8 text-primary" />
+                                Discover <span className="text-primary font-light">Projects</span>
+                            </h1>
+                            <p className="text-gray-500 text-xs tracking-[0.2em] font-bold uppercase opacity-60">Swipe right to join, left to pass</p>
+
+                            <div className="absolute top-1/2 -translate-y-1/2 right-0">
+                                <button
+                                    onClick={() => setIsModalOpen(true)}
+                                    className="p-2 glass-morphism rounded-full hover:bg-white/10 active:scale-95 transition-all outline-none"
+                                >
+                                    <Plus className="w-5 h-5 text-primary" />
+                                </button>
                             </div>
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className="group relative p-4 glass-morphism rounded-3xl hover:bg-white/10 active:scale-95 transition-all border border-white/10 shadow-xl"
-                            >
-                                <Plus className="w-7 h-7 text-primary group-hover:scale-110 transition-transform" />
-                                <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-secondary/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </button>
                         </header>
 
                         <Deck
                             items={projects}
-                            renderItem={(project: Project) => <ProjectCard project={project} />}
+                            renderItem={(project: Project) => <DiscoveryProjectCard project={project} />}
                             onSwipe={(project: Project, dir: "left" | "right") => swipeProject(project.id, dir === "right" ? "LIKE" : "PASS")}
                             emptyState={
                                 <div className="text-center space-y-6 py-20">
@@ -130,16 +133,12 @@ export default function MainApp({
 
                 {activeTab === "teammates" && (
                     <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                        <header className="text-center space-y-4">
-                            <div className="flex justify-center mb-6">
-                                <div className="p-4 bg-gradient-to-tr from-secondary to-accent rounded-3xl shadow-lg">
-                                    <Coffee className="w-8 h-8 text-white" />
-                                </div>
-                            </div>
-                            <h1 className="text-5xl font-black tracking-tighter">
-                                Find Your <span className="bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">Dream Team</span>
+                        <header className="text-center space-y-4 mb-12">
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tighter uppercase flex items-center justify-center gap-4">
+                                <Coffee className="w-8 h-8 text-primary" />
+                                Find Your <span className="text-primary font-light">Dream Team</span>
                             </h1>
-                            <p className="text-gray-400 text-lg font-medium max-w-md mx-auto">Connect with brilliant minds who share your vision</p>
+                            <p className="text-gray-500 text-xs tracking-[0.2em] font-bold uppercase opacity-60">Connect with brilliant minds</p>
                         </header>
 
                         <Deck

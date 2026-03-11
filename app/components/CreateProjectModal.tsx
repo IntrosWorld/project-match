@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Rocket, Plus, Image as ImageIcon, Tag, Type } from "lucide-react";
+import { X, Plus, Image as ImageIcon, Tag, Type } from "lucide-react";
 import { useState, useTransition } from "react";
 import { createProject } from "@/app/actions/project";
 import ImageUpload from "./ImageUpload";

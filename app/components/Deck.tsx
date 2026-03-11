@@ -1,6 +1,6 @@
 "use client";
 
-import { AnimatePresence, motion, useMotionValue, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useMotionValue, useTransform, Variants } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Heart, X } from "lucide-react";
 
@@ -28,8 +28,14 @@ export default function Deck<T extends { id: string }>({
 
     // Reset index when items change significantly
     useEffect(() => {
-        if (items.length === 0 || currentIndex >= items.length) {
+        if (items.length === 0) {
             setCurrentIndex(0);
+        } else if (currentIndex > 0 && currentIndex >= items.length) {
+            // Wait for the exit animation to finish before looping back to the start
+            const timer = setTimeout(() => {
+                setCurrentIndex(0);
+            }, 400);
+            return () => clearTimeout(timer);
         }
     }, [items.length, currentIndex]);
 
@@ -54,15 +60,36 @@ export default function Deck<T extends { id: string }>({
         x.set(0);
     };
 
+// define variants right before return statement
+    const cardVariants: Variants = {
+        initial: (customValues: { scale: number; yOffset: number }) => ({
+            scale: customValues.scale - 0.05,
+            opacity: 1,
+            y: customValues.yOffset + 20
+        }),
+        active: (customValues: { scale: number; yOffset: number }) => ({
+            scale: customValues.scale,
+            opacity: 1,
+            y: customValues.yOffset,
+            transition: { type: "spring" as const, stiffness: 500, damping: 35, mass: 0.8 }
+        }),
+        exit: (direction: "left" | "right") => ({
+            x: direction === "left" ? -1000 : 1000,
+            rotate: direction === "left" ? -45 : 45,
+            opacity: 1,
+            transition: { duration: 0.35, ease: "easeIn" }
+        })
+    };
+
     return (
-        <div className="relative w-full max-w-md mx-auto h-[600px] flex items-center justify-center perspective-[1500px]">
+        <div className="relative w-full max-w-[360px] mx-auto h-[500px] flex items-center justify-center perspective-[1500px]">
             {/* Empty State Layer - Always rendered behind */}
             <div className="absolute inset-0 flex flex-col items-center justify-center z-0 animate-in fade-in duration-700">
                 {emptyState}
             </div>
 
             {/* Card Stack - Rendered on top */}
-            <AnimatePresence mode="popLayout">
+            <AnimatePresence mode="popLayout" custom={exitDirection}>
                 {currentIndex < localItems.length && localItems.slice(currentIndex, currentIndex + 3).reverse().map((item, index) => {
                     const stackIndex = localItems.slice(currentIndex, currentIndex + 3).length - 1 - index;
                     const isTop = stackIndex === 0;
@@ -85,37 +112,29 @@ export default function Deck<T extends { id: string }>({
                                 transformOrigin: "bottom center",
                                 touchAction: "none"
                             }}
-                            initial={{ scale: scale - 0.05, opacity: 1, y: yOffset + 20 }}
-                            animate={{
-                                scale: scale,
-                                opacity: 1,
-                                y: yOffset,
-                                transition: { type: "spring", stiffness: 500, damping: 35, mass: 0.8 }
-                            }}
-                            exit={{
-                                x: exitDirection === "right" ? 1500 : -1500,
-                                rotate: exitDirection === "right" ? 45 : -45,
-                                opacity: 1,
-                                transition: { duration: 0.35, ease: "easeIn" }
-                            }}
+                            custom={{ scale, yOffset, direction: exitDirection || "right" }}
+                            variants={cardVariants}
+                            initial="initial"
+                            animate="active"
+                            exit="exit"
                             className="absolute w-full h-full cursor-grab active:cursor-grabbing"
                         >
                             {isTop && (
                                 <>
                                     <motion.div
                                         style={{ opacity: likeOpacity }}
-                                        className="absolute top-16 left-10 z-[110] px-6 py-2 border-8 border-emerald-500 rounded-xl -rotate-12 pointer-events-none bg-neutral-900 shadow-[0_0_30px_rgba(16,185,129,0.4)]"
+                                        className="absolute top-8 left-6 z-[110] px-4 py-1.5 border-4 border-emerald-500/80 rounded-lg -rotate-12 pointer-events-none bg-neutral-900/40 shadow-sm backdrop-blur-sm"
                                     >
-                                        <span className="text-5xl font-black text-emerald-500 uppercase tracking-widest flex items-center gap-3">
-                                            <Heart className="fill-emerald-500 w-10 h-10" /> YES
+                                        <span className="text-xl font-bold text-emerald-500 uppercase tracking-widest flex items-center gap-2">
+                                            <Heart className="fill-emerald-500 w-5 h-5" /> YES
                                         </span>
                                     </motion.div>
                                     <motion.div
                                         style={{ opacity: passOpacity }}
-                                        className="absolute top-16 right-10 z-[110] px-6 py-2 border-8 border-rose-500 rounded-xl rotate-12 pointer-events-none bg-neutral-900 shadow-[0_0_30px_rgba(244,63,94,0.4)]"
+                                        className="absolute top-8 right-6 z-[110] px-4 py-1.5 border-4 border-rose-500/80 rounded-lg rotate-12 pointer-events-none bg-neutral-900/40 shadow-sm backdrop-blur-sm"
                                     >
-                                        <span className="text-5xl font-black text-rose-500 uppercase tracking-widest flex items-center gap-3">
-                                            <X className="w-12 h-12" /> NOPE
+                                        <span className="text-xl font-bold text-rose-500 uppercase tracking-widest flex items-center gap-2">
+                                            <X className="w-6 h-6" /> NOPE
                                         </span>
                                     </motion.div>
                                 </>

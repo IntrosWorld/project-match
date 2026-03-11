@@ -20,14 +20,14 @@ export default function SignInPage() {
                         initial={{ scale: 0 }}
                         animate={{ scale: 1 }}
                         transition={{ type: "spring", stiffness: 260, damping: 20, delay: 0.2 }}
-                        className="w-20 h-20 bg-gradient-to-tr from-primary to-accent rounded-3xl mx-auto mb-6 flex items-center justify-center rotate-12 shadow-lg"
+                        className="w-20 h-20 bg-primary rounded-3xl mx-auto mb-6 flex items-center justify-center rotate-12 shadow-[0_0_30px_rgba(234,40,30,0.4)]"
                     >
                         <Sparkles className="text-white w-10 h-10" />
                     </motion.div>
-                    <h1 className="text-4xl font-black tracking-tighter mb-2 bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-400">
+                    <h1 className="text-5xl font-black tracking-tighter mb-2 text-white uppercase">
                         Project Match
                     </h1>
-                    <p className="text-gray-400 font-medium">Connect. Build. Innovate.</p>
+                    <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Connect. Build. Innovate.</p>
                 </div>
 
                 <button
@@ -44,8 +44,8 @@ export default function SignInPage() {
             </motion.div>
 
             {/* Background Decorative Elements */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/10 rounded-full blur-[120px] -z-0" />
-            <div className="absolute bottom-1/4 right-1/4 w-64 h-64 bg-accent/10 rounded-full blur-[120px] -z-0" />
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] -z-0" />
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-primary/5 rounded-full blur-[120px] -z-0" />
         </div>
     );
 }
