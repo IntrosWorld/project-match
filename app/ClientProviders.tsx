@@ -11,18 +11,38 @@ import { SessionProvider } from "next-auth/react";
 import type { Session } from "next-auth";
 import GlobalStyles from "./styles/global";
 import darkTheme from "./styles/themes/dark";
+import { usePathname } from "next/navigation";
+import { useEffect } from "react";
 
 import dynamic from "next/dynamic";
 
-const Cursor = dynamic(() => import("./components/shared/Cursor"), { ssr: false });
+const Cursor = dynamic(() => import("./components/shared/Cursor"), {
+  ssr: false,
+});
 
-export default function ClientProviders({ 
+export default function ClientProviders({
   children,
-  session 
-}: { 
+  session,
+}: {
   children: React.ReactNode;
   session?: Session | null;
 }) {
+  const pathname = usePathname();
+  const isLandingPage = pathname === "/landing";
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (isLandingPage) {
+      root.classList.add("landing-cursor");
+    } else {
+      root.classList.remove("landing-cursor");
+    }
+
+    return () => {
+      root.classList.remove("landing-cursor");
+    };
+  }, [isLandingPage]);
+
   return (
     <SessionProvider session={session}>
       <ThemeContextProvider>
@@ -30,7 +50,7 @@ export default function ClientProviders({
           <GlobalStyles />
           <MenuContextProvider>
             <CursorContextProvider>
-              <Cursor />
+              {isLandingPage ? <Cursor /> : null}
               {children}
             </CursorContextProvider>
           </MenuContextProvider>

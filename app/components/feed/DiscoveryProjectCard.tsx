@@ -1,11 +1,11 @@
 "use client";
 
-import React from 'react';
-import { motion, useAnimation } from 'framer-motion';
-import styled from 'styled-components';
-import Image from 'next/image';
-import { secondaryFontStyle } from '../../styles/shared/text';
-import Arrow from '../shared/icons/Arrow';
+import React from "react";
+import { motion, useAnimation } from "framer-motion";
+import styled from "styled-components";
+import Image from "next/image";
+import { secondaryFontStyle } from "../../styles/shared/text";
+import Arrow from "../shared/icons/Arrow";
 
 const transition = {
   duration: 0.45,
@@ -37,7 +37,7 @@ const VideoBackground = styled.div`
   }
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     inset: 0;
     background: linear-gradient(
@@ -65,7 +65,7 @@ const ProjectHeader = styled.div`
 
   & h3 {
     ${secondaryFontStyle};
-    color: rgba(255,255,255,0.8);
+    color: rgba(255, 255, 255, 0.8);
     font-size: 0.75rem;
     font-weight: 600;
     text-transform: uppercase;
@@ -86,15 +86,17 @@ const ProjectHeader = styled.div`
 `;
 
 const ProjectTitle = styled(motion.h2)`
-  font-size: 1.75rem;
+  font-size: clamp(1.25rem, 2.8vw, 1.75rem);
   line-height: 1.1;
   font-weight: 800;
   color: #fff;
   margin-top: auto;
   margin-bottom: 1rem;
-  font-family: 'Geist', sans-serif;
+  font-family: "Geist", sans-serif;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 
   & .arrow {
     display: flex;
@@ -120,7 +122,11 @@ interface Project {
   owner: { name: string | null };
 }
 
-export default function DiscoveryProjectCard({ project }: { project: Project }) {
+export default function DiscoveryProjectCard({
+  project,
+}: {
+  project: Project;
+}) {
   const controlsArrow = useAnimation();
 
   React.useEffect(() => {
@@ -131,10 +137,13 @@ export default function DiscoveryProjectCard({ project }: { project: Project }) 
     <CardContainer>
       <VideoBackground>
         <Image
-          src={project.imageUrl || `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800`}
+          src={
+            project.imageUrl ||
+            `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800`
+          }
           alt={project.title}
           fill
-          style={{ objectFit: 'cover', zIndex: -1 }}
+          style={{ objectFit: "cover", zIndex: -1 }}
         />
         {project.videoUrl && (
           <video
@@ -144,7 +153,7 @@ export default function DiscoveryProjectCard({ project }: { project: Project }) 
             muted
             playsInline
             poster={project.imageUrl || undefined}
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
         )}
       </VideoBackground>
@@ -159,11 +168,7 @@ export default function DiscoveryProjectCard({ project }: { project: Project }) 
         </ProjectHeader>
 
         <ProjectTitle>
-          {project.title.split(' ').map((word, i) => (
-            <React.Fragment key={i}>
-              {word} <br />
-            </React.Fragment>
-          ))}
+          {project.title}
           <span className="arrow">
             <Arrow animate={controlsArrow} transition={transition} />
           </span>

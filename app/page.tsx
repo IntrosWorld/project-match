@@ -3,7 +3,13 @@ import prisma from "@/lib/prisma";
 import MainApp from "./components/MainApp";
 import { redirect } from "next/navigation";
 
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
+  const initialTab = resolvedSearchParams?.tab ?? "projects";
   const session = await auth();
 
   if (!session?.user) {
@@ -11,7 +17,6 @@ export default async function Home() {
   }
 
   const userId = session?.user?.id;
-
 
   // Fetch projects the user hasn't swiped on yet
   const swipedProjectIds = await prisma.swipe
@@ -49,14 +54,14 @@ export default async function Home() {
   const myProjects = await prisma.project.findMany({
     where: { ownerId: userId },
     include: { owner: { select: { name: true } } },
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: "desc" },
   });
 
   // Fetch MATCHES (Mutual Likes)
   // 1. Get IDs of users I liked
   const myLikes = await prisma.userSwipe.findMany({
     where: { swiperId: userId, action: "LIKE" },
-    select: { swipedId: true }
+    select: { swipedId: true },
   });
   const myLikedIds = myLikes.map((l) => l.swipedId);
 
@@ -65,14 +70,14 @@ export default async function Home() {
     where: {
       swiperId: { in: myLikedIds },
       swipedId: userId,
-      action: "LIKE"
+      action: "LIKE",
     },
-    select: { swiperId: true }
+    select: { swiperId: true },
   });
   const matchedUserIds = mutualSwipes.map((s) => s.swiperId);
 
   const matches = await prisma.user.findMany({
-    where: { id: { in: matchedUserIds } }
+    where: { id: { in: matchedUserIds } },
   });
 
   return (
@@ -82,6 +87,7 @@ export default async function Home() {
       userProfile={userProfile}
       myProjects={myProjects}
       matches={matches}
+      initialTab={initialTab}
     />
   );
 }

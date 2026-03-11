@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { createGlobalStyle } from 'styled-components';
+import { createGlobalStyle } from "styled-components";
 
 const GlobalStyles = createGlobalStyle`
   body {
@@ -33,7 +33,7 @@ const GlobalStyles = createGlobalStyle`
     box-sizing: border-box;
     -webkit-font-smoothing: antialiased;
     font-size: 16px;
-    cursor: none;
+    cursor: auto;
   }
   *, *:before, *:after {
     box-sizing: inherit;
@@ -45,15 +45,19 @@ const GlobalStyles = createGlobalStyle`
     display: inline-block;
     color: inherit;
     text-decoration: none;
-    cursor: none;
+    cursor: pointer;
   }
   button {
     appearance: none;
-    padding: 0;
-    background: 0 0;
-    border: none;
     color: inherit;
     outline: 0;
+    cursor: pointer;
+  }
+  html.landing-cursor {
+    cursor: none;
+  }
+  html.landing-cursor a,
+  html.landing-cursor button {
     cursor: none;
   }
   ::-webkit-scrollbar {
