@@ -130,11 +130,11 @@ export default function DiscoveryProjectCard({ project }: { project: Project }) 
   return (
     <CardContainer>
       <VideoBackground>
-        <Image 
-          src={project.imageUrl || `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800`} 
-          alt={project.title} 
+        <Image
+          src={project.imageUrl || `https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&q=80&w=800`}
+          alt={project.title}
           fill
-          style={{ objectFit: 'cover', zIndex: -1 }} 
+          style={{ objectFit: 'cover', zIndex: -1 }}
         />
         {project.videoUrl && (
           <video
@@ -151,10 +151,10 @@ export default function DiscoveryProjectCard({ project }: { project: Project }) 
 
       <Content>
         <ProjectHeader>
-          <h3>{project.category || "Project Meta"}</h3>
+          <h3>{project.category || "Project Match"}</h3>
           <div className="meta">
-            <h4>{project.owner.name || "Anon"}</h4>
-            <h4>{project.year || "2024"}</h4>
+            <h4>{project.owner.name || "Ayus"}</h4>
+            <h4>{project.year || "2026"}</h4>
           </div>
         </ProjectHeader>
 

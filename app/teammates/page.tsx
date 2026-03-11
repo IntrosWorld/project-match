@@ -10,7 +10,7 @@ export default async function TeammatesPage() {
       description: "A digital experience for a boutique creative agency focusing on minimalist aesthetics and bold typography.",
       videoUrl: "/videos/featured-video.mp4",
       category: "Digital Experience",
-      year: "2024",
+      year: "2026",
       owner: { name: "Aksay" },
       tags: "React, Framer Motion, GSAP"
     },
