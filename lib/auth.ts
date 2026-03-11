@@ -9,11 +9,10 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         GitHub({
             clientId: process.env.GITHUB_ID!,
             clientSecret: process.env.GITHUB_SECRET!,
-            checks: ['state'],
+            authorization: { params: { scope: 'read:user user:email' } },
         }),
     ],
     session: { strategy: "jwt" },
-    basePath: "/api/auth",
     trustHost: true,
     pages: {
         signIn: "/auth/signin",
