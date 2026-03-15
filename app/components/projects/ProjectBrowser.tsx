@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Rocket } from "lucide-react";
 import DiscoveryProjectCard from "@/app/components/feed/DiscoveryProjectCard";
 import ProjectDetailsModal from "@/app/components/projects/ProjectDetailsModal";
@@ -13,6 +13,14 @@ export default function ProjectBrowser({
 }) {
   const [projectItems, setProjectItems] = useState(projects);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
+  const railRef = useRef<HTMLDivElement>(null);
+  const dragStateRef = useRef({
+    pointerId: -1,
+    startX: 0,
+    scrollLeft: 0,
+    isPointerDown: false,
+    didDrag: false,
+  });
 
   useEffect(() => {
     setProjectItems(projects);
@@ -22,6 +30,11 @@ export default function ProjectBrowser({
     () =>
       projectItems.find((project) => project.id === selectedProjectId) ?? null,
     [projectItems, selectedProjectId],
+  );
+
+  const orderedProjects = useMemo(
+    () => [...projectItems].reverse(),
+    [projectItems],
   );
 
   const handleCommentCreated = (projectId: string) => {
@@ -35,6 +48,84 @@ export default function ProjectBrowser({
           : project,
       ),
     );
+  };
+
+  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === "mouse" && event.button !== 0) {
+      return;
+    }
+
+    const target = event.target as HTMLElement;
+    if (target.closest("button, a, input, textarea")) {
+      return;
+    }
+
+    const rail = railRef.current;
+    if (!rail) {
+      return;
+    }
+
+    dragStateRef.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      scrollLeft: rail.scrollLeft,
+      isPointerDown: true,
+      didDrag: false,
+    };
+
+    rail.setPointerCapture(event.pointerId);
+  };
+
+  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    const rail = railRef.current;
+    const dragState = dragStateRef.current;
+
+    if (!rail || !dragState.isPointerDown || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    const deltaX = event.clientX - dragState.startX;
+
+    if (!dragState.didDrag && Math.abs(deltaX) > 6) {
+      dragState.didDrag = true;
+    }
+
+    if (!dragState.didDrag) {
+      return;
+    }
+
+    rail.scrollLeft = dragState.scrollLeft - deltaX;
+  };
+
+  const finishPointerDrag = (event: React.PointerEvent<HTMLDivElement>) => {
+    const rail = railRef.current;
+    const dragState = dragStateRef.current;
+
+    if (!rail || dragState.pointerId !== event.pointerId) {
+      return;
+    }
+
+    if (rail.hasPointerCapture(event.pointerId)) {
+      rail.releasePointerCapture(event.pointerId);
+    }
+
+    dragStateRef.current = {
+      pointerId: -1,
+      startX: 0,
+      scrollLeft: rail.scrollLeft,
+      isPointerDown: false,
+      didDrag: dragState.didDrag,
+    };
+  };
+
+  const handleClickCapture = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!dragStateRef.current.didDrag) {
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    dragStateRef.current.didDrag = false;
   };
 
   if (projectItems.length === 0) {
@@ -57,9 +148,18 @@ export default function ProjectBrowser({
 
   return (
     <>
-      <div className="-mx-4 overflow-x-auto px-4 pb-5 sm:-mx-6 sm:px-6">
-        <div className="flex min-w-max flex-row-reverse gap-6 snap-x snap-mandatory pb-2">
-          {projectItems.map((project, index) => (
+      <div
+        ref={railRef}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={finishPointerDrag}
+        onPointerCancel={finishPointerDrag}
+        onPointerLeave={finishPointerDrag}
+        onClickCapture={handleClickCapture}
+        className="-mx-4 overflow-x-auto px-4 pb-5 sm:-mx-6 sm:px-6 cursor-grab touch-pan-x select-none active:cursor-grabbing [scrollbar-width:none]"
+      >
+        <div className="flex min-w-max gap-6 snap-x snap-mandatory pb-2">
+          {orderedProjects.map((project, index) => (
             <div key={project.id} dir="ltr">
               <DiscoveryProjectCard
                 project={project}
