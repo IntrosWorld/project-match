@@ -8,8 +8,12 @@ import type { ProjectFeedItem } from "@/lib/project-types";
 
 export default function ProjectBrowser({
   projects,
+  emptyTitle = "No projects available yet",
+  emptyMessage = "Create the first project or check back later.",
 }: {
   projects: ProjectFeedItem[];
+  emptyTitle?: string;
+  emptyMessage?: string;
 }) {
   const [projectItems, setProjectItems] = useState(projects);
   const [selectedProjectId, setSelectedProjectId] = useState<string | null>(null);
@@ -136,10 +140,10 @@ export default function ProjectBrowser({
         </div>
         <div className="space-y-2 max-w-md mx-auto">
           <p className="text-gray-400 text-lg font-medium">
-            No projects available yet
+            {emptyTitle}
           </p>
           <p className="text-gray-500 text-sm">
-            Create the first project or check back later.
+            {emptyMessage}
           </p>
         </div>
       </div>

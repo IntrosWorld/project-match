@@ -53,7 +53,7 @@ export default function TeammateDetailsModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-md"
+      className="fixed inset-0 z-50 overflow-y-auto bg-black/75 p-4 backdrop-blur-md"
       onClick={onClose}
     >
       <motion.div
@@ -61,10 +61,10 @@ export default function TeammateDetailsModal({
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 24, scale: 0.98 }}
         transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
-        className="glass-morphism max-h-[92vh] w-full max-w-4xl overflow-hidden rounded-[2.25rem] border border-white/10"
+        className="glass-morphism relative mx-auto my-4 max-h-[calc(100dvh-2rem)] w-full max-w-4xl overflow-y-auto overscroll-contain rounded-[2.25rem] border border-white/10"
         onClick={(event) => event.stopPropagation()}
       >
-        <div className="grid max-h-[92vh] lg:grid-cols-[1.08fr_0.92fr]">
+        <div className="grid lg:min-h-[min(92vh,44rem)] lg:grid-cols-[1.08fr_0.92fr]">
           <div className="relative min-h-[24rem] overflow-hidden bg-black">
             <Image
               src={resolvedImageSrc}
@@ -98,7 +98,7 @@ export default function TeammateDetailsModal({
             </div>
           </div>
 
-          <div className="max-h-[92vh] overflow-y-auto border-t border-white/10 bg-neutral-950/90 p-6 lg:border-l lg:border-t-0 sm:p-8">
+          <div className="border-t border-white/10 bg-neutral-950/90 p-6 lg:border-l lg:border-t-0 sm:p-8">
             <div className="space-y-6">
               <div>
                 <p className="text-[11px] font-black uppercase tracking-[0.24em] text-gray-500">

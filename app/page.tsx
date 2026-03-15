@@ -72,7 +72,14 @@ export default async function Home({
 
   const myProjects = await prisma.project.findMany({
     where: { ownerId: userId },
-    include: { owner: { select: { name: true } } },
+    include: {
+      owner: { select: { name: true } },
+      _count: {
+        select: {
+          comments: true,
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -106,7 +113,18 @@ export default async function Home({
       projects={projects}
       teammates={teammates}
       userProfile={userProfile}
-      myProjects={myProjects}
+      myProjects={myProjects.map((project) => ({
+        id: project.id,
+        title: project.title,
+        description: project.description,
+        imageUrl: project.imageUrl,
+        tags: project.tags,
+        createdAt: project.createdAt.toISOString(),
+        commentsCount: project._count.comments,
+        owner: {
+          name: project.owner.name,
+        },
+      }))}
       matches={matches}
       initialConversations={initialConversations}
       realtimeConfigured={realtimeConfigured}

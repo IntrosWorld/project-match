@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Navigation from "./Navigation";
@@ -21,11 +21,10 @@ export interface Project {
   id: string;
   title: string;
   description: string;
-  imageUrl?: string | null;
-  videoUrl?: string;
-  category?: string;
-  year?: string;
+  imageUrl: string | null;
   tags: string;
+  createdAt: string;
+  commentsCount: number;
   owner: { name: string | null };
 }
 
@@ -62,6 +61,9 @@ export default function MainApp({
   initialTab?: string;
 }) {
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [projectView, setProjectView] = useState<"discover" | "mine">(
+    "discover",
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [matchData, setMatchData] = useState<UserProfile | null>(null);
   const [isMatchModalOpen, setIsMatchModalOpen] = useState(false);
@@ -95,6 +97,11 @@ export default function MainApp({
   const handleOpenTeammateDetails = (user: UserProfile) => {
     setSelectedTeammate(user);
   };
+
+  const activeProjectItems = useMemo<ProjectFeedItem[]>(
+    () => (projectView === "discover" ? projects : myProjects),
+    [myProjects, projectView, projects],
+  );
 
   return (
     <div className="min-h-screen relative bg-black text-white">
@@ -151,7 +158,46 @@ export default function MainApp({
               </div>
             </header>
 
-            <ProjectBrowser projects={projects} />
+            <div className="flex justify-center lg:justify-start">
+              <div className="inline-flex rounded-2xl border border-white/10 bg-white/[0.03] p-1.5 shadow-[0_12px_30px_rgba(0,0,0,0.22)]">
+                <button
+                  type="button"
+                  onClick={() => setProjectView("discover")}
+                  className={`rounded-[1rem] px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] transition-all sm:px-5 ${
+                    projectView === "discover"
+                      ? "bg-linear-to-r from-zinc-950 via-neutral-900 to-zinc-950 text-white shadow-[0_10px_20px_rgba(234,40,30,0.18)]"
+                      : "text-gray-500 hover:text-white"
+                  }`}
+                >
+                  Discover
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setProjectView("mine")}
+                  className={`rounded-[1rem] px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.18em] transition-all sm:px-5 ${
+                    projectView === "mine"
+                      ? "bg-linear-to-r from-zinc-950 via-neutral-900 to-zinc-950 text-white shadow-[0_10px_20px_rgba(234,40,30,0.18)]"
+                      : "text-gray-500 hover:text-white"
+                  }`}
+                >
+                  My Projects
+                </button>
+              </div>
+            </div>
+
+            <ProjectBrowser
+              projects={activeProjectItems}
+              emptyTitle={
+                projectView === "discover"
+                  ? "No projects available yet"
+                  : "You have not posted any projects yet"
+              }
+              emptyMessage={
+                projectView === "discover"
+                  ? "Create the first project or check back later."
+                  : "Use Add Project to publish your first build here."
+              }
+            />
           </div>
         )}
 
