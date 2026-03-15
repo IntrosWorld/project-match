@@ -21,8 +21,10 @@ export default function ProjectBrowser({
   const dragStateRef = useRef({
     pointerId: -1,
     startX: 0,
+    startY: 0,
     scrollLeft: 0,
     isPointerDown: false,
+    isDragging: false,
     didDrag: false,
   });
 
@@ -72,12 +74,12 @@ export default function ProjectBrowser({
     dragStateRef.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
+      startY: event.clientY,
       scrollLeft: rail.scrollLeft,
       isPointerDown: true,
+      isDragging: false,
       didDrag: false,
     };
-
-    rail.setPointerCapture(event.pointerId);
   };
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -89,6 +91,31 @@ export default function ProjectBrowser({
     }
 
     const deltaX = event.clientX - dragState.startX;
+    const deltaY = event.clientY - dragState.startY;
+
+    if (!dragState.isDragging) {
+      if (Math.abs(deltaY) > 10 && Math.abs(deltaY) > Math.abs(deltaX)) {
+        dragStateRef.current = {
+          pointerId: -1,
+          startX: 0,
+          startY: 0,
+          scrollLeft: rail.scrollLeft,
+          isPointerDown: false,
+          isDragging: false,
+          didDrag: false,
+        };
+        return;
+      }
+
+      if (Math.abs(deltaX) > 8 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        dragState.isDragging = true;
+        rail.setPointerCapture(event.pointerId);
+      }
+    }
+
+    if (!dragState.isDragging) {
+      return;
+    }
 
     if (!dragState.didDrag && Math.abs(deltaX) > 6) {
       dragState.didDrag = true;
@@ -116,8 +143,10 @@ export default function ProjectBrowser({
     dragStateRef.current = {
       pointerId: -1,
       startX: 0,
+      startY: 0,
       scrollLeft: rail.scrollLeft,
       isPointerDown: false,
+      isDragging: false,
       didDrag: dragState.didDrag,
     };
   };
@@ -160,7 +189,7 @@ export default function ProjectBrowser({
         onPointerCancel={finishPointerDrag}
         onPointerLeave={finishPointerDrag}
         onClickCapture={handleClickCapture}
-        className="-mx-4 overflow-x-auto px-4 pb-5 sm:-mx-6 sm:px-6 cursor-grab touch-pan-x select-none active:cursor-grabbing [scrollbar-width:none]"
+        className="-mx-4 overflow-x-auto px-4 pb-5 sm:-mx-6 sm:px-6 cursor-grab touch-pan-y select-none active:cursor-grabbing [scrollbar-width:none]"
       >
         <div className="flex min-w-max gap-6 snap-x snap-mandatory pb-2">
           {orderedProjects.map((project, index) => (
