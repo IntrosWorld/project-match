@@ -1,7 +1,7 @@
 "use client";
 
+import Image from "next/image";
 import { useState } from "react";
-import { motion } from "framer-motion";
 import { ArrowUp, Briefcase, Code, MapPin, Star } from "lucide-react";
 
 interface User {
@@ -32,17 +32,13 @@ export default function UserCard({
         failedImageSrc === imageSrc ? fallbackAvatarSrc : imageSrc;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="w-full h-full select-none bg-neutral-950 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl border border-white/10 group hover:border-white/20 transition-all duration-300"
-        >
+        <div className="w-full h-full select-none bg-neutral-950 rounded-[3rem] overflow-hidden flex flex-col shadow-2xl border border-white/10">
             <div className="relative -mb-px h-[65%] w-full shrink-0 overflow-hidden bg-neutral-950">
-                <motion.img
-                    whileHover={{ scale: 1.05 }}
-                    transition={{ duration: 0.6 }}
+                <Image
                     src={resolvedImageSrc}
                     alt={user.name || "Profile picture"}
+                    fill
+                    sizes="(max-width: 640px) 100vw, 23rem"
                     onError={() => setFailedImageSrc(imageSrc)}
                     draggable={false}
                     className="pointer-events-none h-full w-full object-cover"
@@ -125,6 +121,6 @@ export default function UserCard({
                     </div>
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }

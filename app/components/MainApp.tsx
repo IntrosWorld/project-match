@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Navigation from "./Navigation";
 import Deck from "./Deck";
 import UserCard from "./feed/UserCard";
@@ -67,6 +68,7 @@ export default function MainApp({
   const [selectedTeammate, setSelectedTeammate] = useState<UserProfile | null>(
     null,
   );
+  const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(
     initialConversations.reduce(
       (count, conversation) => count + conversation.unreadCount,
@@ -76,13 +78,18 @@ export default function MainApp({
 
   const handleUserSwipe = async (user: UserProfile, dir: "left" | "right") => {
     const result = await swipeUser(user.id, dir === "right" ? "LIKE" : "PASS");
-    if (result?.isMatch) {
-      const found = teammates.find((t) => t.id === result.swipedId);
-      if (found) {
-        setMatchData(found);
-        setIsMatchModalOpen(true);
-      }
+    if (result?.success === false) {
+      return;
     }
+
+    if (result?.isMatch) {
+      setMatchData(user);
+      setIsMatchModalOpen(true);
+    }
+
+    window.setTimeout(() => {
+      router.refresh();
+    }, 320);
   };
 
   const handleOpenTeammateDetails = (user: UserProfile) => {
