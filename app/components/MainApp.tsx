@@ -104,7 +104,7 @@ export default function MainApp({
   );
 
   return (
-    <div className="min-h-screen relative bg-black text-white">
+    <div className="relative h-[100dvh] overflow-y-auto overflow-x-hidden overscroll-y-auto bg-black text-white [-webkit-overflow-scrolling:touch]">
       {/* Enhanced background with cinematic glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(234,40,30,0.1),transparent_70%)]" />
       <div className="absolute inset-0 bg-linear-to-t from-black via-transparent to-transparent" />
