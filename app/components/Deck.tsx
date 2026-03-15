@@ -2,19 +2,21 @@
 
 import {
   AnimatePresence,
+  animate,
   motion,
   useMotionValue,
   useTransform,
   Variants,
 } from "framer-motion";
 import { useState, useEffect } from "react";
-import { Heart, X } from "lucide-react";
+import { ChevronUp, Heart, X } from "lucide-react";
 
 interface DeckProps<T> {
   items: T[];
   renderItem: (item: T) => React.ReactNode;
   onSwipe: (item: T, direction: "left" | "right") => void;
   emptyState: React.ReactNode;
+  onSwipeUp?: (item: T) => void;
 }
 
 export default function Deck<T extends { id: string }>({
@@ -22,6 +24,7 @@ export default function Deck<T extends { id: string }>({
   renderItem,
   onSwipe,
   emptyState,
+  onSwipeUp,
 }: DeckProps<T>) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [localItems, setLocalItems] = useState(items);
@@ -48,27 +51,72 @@ export default function Deck<T extends { id: string }>({
   }, [items.length, currentIndex]);
 
   const x = useMotionValue(0);
-  const rotate = useTransform(x, [-250, 250], [-25, 25]);
-  const likeOpacity = useTransform(x, [20, 120], [0, 1]);
-  const passOpacity = useTransform(x, [-20, -120], [0, 1]);
+  const y = useMotionValue(0);
+  const rotate = useTransform(x, [-280, 280], [-11, 11]);
+  const likeOpacity = useTransform(x, [18, 110], [0, 1]);
+  const passOpacity = useTransform(x, [-110, -18], [1, 0]);
+  const detailOpacity = useTransform(y, [-170, -50], [1, 0]);
+  const detailScale = useTransform(y, [-170, -50], [1.06, 0.92]);
+
+  const resetCardPosition = () => {
+    const spring = {
+      type: "spring" as const,
+      stiffness: 340,
+      damping: 30,
+      mass: 0.78,
+    };
+
+    void animate(x, 0, spring);
+    void animate(y, 0, spring);
+  };
 
   const handleDragEnd = (
     _: unknown,
-    info: { offset: { x: number }; velocity: { x: number } },
+    info: { offset: { x: number; y: number }; velocity: { x: number; y: number } },
   ) => {
-    const threshold = 100;
-    const velocity = info.velocity.x;
+    const horizontalThreshold = 138;
+    const horizontalVelocity = 760;
+    const minimumTravelForFlick = 64;
+    const upwardThreshold = -110;
+    const upwardVelocity = -520;
 
-    if (info.offset.x > threshold || velocity > 300) {
-      setExitDirection("right");
-      onSwipe(localItems[currentIndex], "right");
-      setCurrentIndex((prev) => prev + 1);
-    } else if (info.offset.x < -threshold || velocity < -300) {
-      setExitDirection("left");
-      onSwipe(localItems[currentIndex], "left");
-      setCurrentIndex((prev) => prev + 1);
+    const currentItem = localItems[currentIndex];
+
+    if (!currentItem) {
+      resetCardPosition();
+      return;
     }
-    x.set(0);
+
+    const isUpSwipe =
+      onSwipeUp &&
+      Math.abs(info.offset.x) < 110 &&
+      (info.offset.y < upwardThreshold || info.velocity.y < upwardVelocity);
+
+    if (isUpSwipe) {
+      onSwipeUp(currentItem);
+      resetCardPosition();
+      return;
+    }
+
+    if (
+      info.offset.x > horizontalThreshold ||
+      (info.offset.x > minimumTravelForFlick &&
+        info.velocity.x > horizontalVelocity)
+    ) {
+      setExitDirection("right");
+      onSwipe(currentItem, "right");
+      setCurrentIndex((prev) => prev + 1);
+    } else if (
+      info.offset.x < -horizontalThreshold ||
+      (info.offset.x < -minimumTravelForFlick &&
+        info.velocity.x < -horizontalVelocity)
+    ) {
+      setExitDirection("left");
+      onSwipe(currentItem, "left");
+      setCurrentIndex((prev) => prev + 1);
+    } else {
+      resetCardPosition();
+    }
   };
 
   // define variants right before return statement
@@ -84,28 +132,34 @@ export default function Deck<T extends { id: string }>({
       y: customValues.yOffset,
       transition: {
         type: "spring" as const,
-        stiffness: 500,
-        damping: 35,
-        mass: 0.8,
+        stiffness: 430,
+        damping: 30,
+        mass: 0.82,
       },
     }),
     exit: (direction: "left" | "right") => ({
       x: direction === "left" ? -1000 : 1000,
-      rotate: direction === "left" ? -45 : 45,
+      rotate: direction === "left" ? -26 : 26,
+      scale: 1.03,
       opacity: 1,
-      transition: { duration: 0.35, ease: "easeIn" },
+      transition: {
+        type: "spring" as const,
+        stiffness: 220,
+        damping: 22,
+        mass: 0.9,
+      },
     }),
   };
 
   return (
-    <div className="relative w-full max-w-[360px] mx-auto h-[440px] sm:h-[500px] flex items-center justify-center perspective-[1500px]">
+    <div className="relative mx-auto flex h-[calc(100dvh-12rem)] max-h-[44rem] min-h-[31rem] w-full max-w-[23rem] items-center justify-center perspective-[1500px] sm:h-[min(74dvh,41rem)] sm:max-h-none sm:min-h-[34rem] sm:max-w-[29rem] md:h-[min(78dvh,46rem)] md:min-h-[38rem] md:max-w-[33rem]">
       {/* Empty State Layer - Always rendered behind */}
       <div className="absolute inset-0 flex flex-col items-center justify-center z-0 animate-in fade-in duration-700">
         {emptyState}
       </div>
 
       {/* Card Stack - Rendered on top */}
-      <AnimatePresence mode="popLayout" custom={exitDirection}>
+      <AnimatePresence initial={false} custom={exitDirection}>
         {currentIndex < localItems.length &&
           localItems
             .slice(currentIndex, currentIndex + 3)
@@ -123,17 +177,21 @@ export default function Deck<T extends { id: string }>({
               return (
                 <motion.div
                   key={item.id}
-                  drag={isTop ? "x" : false}
-                  dragConstraints={{ left: 0, right: 0 }}
-                  dragElastic={0.6}
+                  drag={isTop}
+                  dragDirectionLock
+                  dragConstraints={{ left: 0, right: 0, top: 0, bottom: 0 }}
+                  dragElastic={0.16}
                   dragMomentum={false}
                   onDragEnd={handleDragEnd}
+                  whileDrag={{ scale: 1.02 }}
                   style={{
                     x: isTop ? x : 0,
+                    y: isTop ? y : 0,
                     rotate: isTop ? rotate : 0,
                     zIndex: 100 - stackIndex,
                     transformOrigin: "bottom center",
                     touchAction: "none",
+                    willChange: isTop ? "transform" : "auto",
                   }}
                   custom={{
                     scale,
@@ -144,7 +202,7 @@ export default function Deck<T extends { id: string }>({
                   initial="initial"
                   animate="active"
                   exit="exit"
-                  className="absolute w-full h-full cursor-grab active:cursor-grabbing"
+                  className="absolute h-full w-full cursor-grab touch-none transform-gpu [backface-visibility:hidden] active:cursor-grabbing"
                 >
                   {isTop && (
                     <>
@@ -164,6 +222,17 @@ export default function Deck<T extends { id: string }>({
                           <X className="w-6 h-6" /> NOPE
                         </span>
                       </motion.div>
+                      {onSwipeUp ? (
+                        <motion.div
+                          style={{ opacity: detailOpacity, scale: detailScale }}
+                          className="pointer-events-none absolute inset-x-0 bottom-8 z-[110] flex justify-center"
+                        >
+                          <span className="inline-flex items-center gap-2 rounded-full border-2 border-sky-400/75 bg-neutral-900/60 px-4 py-2 text-sm font-black uppercase tracking-[0.22em] text-sky-300 shadow-sm backdrop-blur-sm">
+                            <ChevronUp className="h-4 w-4" />
+                            DETAILS
+                          </span>
+                        </motion.div>
+                      ) : null}
                     </>
                   )}
                   <div
